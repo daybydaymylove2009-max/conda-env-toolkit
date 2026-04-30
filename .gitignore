@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 备份文件（工具生成）
+_backups/
+*.backup
+*.bak
+
+# 临时文件
+*.tmp
+.temp_*
+
+# 日志
+*.log
+.conda_env_toolkit.log
+
+# 报告
+.conda_env_toolkit_report.json
+
+# 操作系统
+.DS_Store
+Thumbs.db
