@@ -1267,7 +1267,29 @@ class CondaManager:
         
         # 先根据包名特征判断（优先级最高）
         # 1. 检查是否是系统库/开发包
-        if any(kw in name_lower for kw in ['libasprintf', 'libblas', 'libcblas', 'libgcc', 'libgomp', 'libgettext', 'libfreetype', 'libstdcxx', 'libgfortran']):
+        system_libs = [
+            'libasprintf', 'libblas', 'libcblas', 'libgcc', 'libgomp', 'libgettext',
+            'libfreetype', 'libstdcxx', 'libgfortran', 'libintl', 'liblapack',
+            'libsqlite', 'libwinpthread', 'libxcb', 'libx11', 'libxml2', 'libxslt',
+            'libzlib', 'libpng', 'libjpeg', 'libtiff', 'libffi', 'libuuid',
+            'libnsl', 'libiconv', 'libtool', 'libcurl', 'libssh2', 'libgit2',
+            'libhdfs', 'libnetcdf', 'libhdf5', 'libarrow', 'libboost',
+            'libevent', 'libthrift', 'libprotobuf', 'libgrpc', 'libopencv',
+            'libopenblas', 'libmkl', 'libomp', 'libllvm', 'libclang',
+            'libgl', 'libglu', 'libglew', 'libglfw', 'libsdl',
+            'libpulse', 'libalsa', 'libjack', 'libportaudio',
+            'libudev', 'libsystemd', 'libdbus', 'libexpat',
+            'libpcre', 'libpcre2', 'libonig', 'libjemalloc',
+            'libtcmalloc', 'libsnappy', 'liblz4', 'libzstd',
+            'libbrotli', 'libbzip2', 'liblzma', 'liblzo',
+            'libgcrypt', 'libgnutls', 'libnettle', 'libhogweed',
+            'libgmp', 'libmpfr', 'libmpc', 'libisl',
+            'libelf', 'libdw', 'libunwind', 'libbacktrace',
+            'libsanitizer', 'libtsan', 'libasan', 'libubsan',
+            'liblsan', 'libmsan', 'libhwasan',
+            'gettext', 'libintl',
+        ]
+        if any(kw in name_lower for kw in system_libs):
             return "系统库/开发包，可能需要通过系统包管理器安装"
         
         # 2. 编译相关
