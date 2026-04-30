@@ -38,6 +38,9 @@ _backups/
 *.backup
 *.bak
 
+# 恢复日志（工具生成）
+_restore_logs/
+
 # 临时文件
 *.tmp
 .temp_*

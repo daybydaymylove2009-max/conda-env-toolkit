@@ -4,7 +4,7 @@
 ║                                                                              ║
 ║           Conda 环境管理工具箱 - 最终完美版 (Final Perfect Edition)            ║
 ║                                                                              ║
-║           版本: 0.1.0  |  作者: 虚网人  |  协议: MIT                    ║
+║           版本: 0.2.0  |  作者: 虚网人  |  协议: MIT                           ║
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
@@ -46,7 +46,7 @@
   # 系统清理
   python conda_env_toolkit.py cleanup --all
 
-📚 文档: https://github.com/conda-env-toolkit/docs
+📚 文档: https://github.com/daybydaymylove2009-max/conda-env-toolkit/docs
 """
 
 import argparse
@@ -91,9 +91,9 @@ warnings.filterwarnings('ignore')
 # ═══════════════════════════════════════════════════════════════════════════════
 # 版本信息
 # ═══════════════════════════════════════════════════════════════════════════════
-VERSION = "0.1.0"
-VERSION_NAME = "Final Perfect Edition - Complete"
-BUILD_DATE = "2025-01-21"
+VERSION = "0.3.0"
+VERSION_NAME = "Mirror & Insight Edition"
+BUILD_DATE = "2026-05-01"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 配置常量
@@ -106,14 +106,103 @@ class Config:
     CONFIG_FILE = ".conda_env_toolkit_config.json"
     LOG_FILE = ".conda_env_toolkit.log"
     
-    # 镜像源
-    PIP_INDEX = "https://pypi.tuna.tsinghua.edu.cn/simple"
-    UV_INDEX = "https://pypi.tuna.tsinghua.edu.cn/simple"
-    CONDA_CHANNELS = [
-        "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/",
-        "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
-        "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
-    ]
+    # 镜像源配置
+    MIRROR_SOURCES = {
+        "official": {
+            "name": "官方主站",
+            "pip_index": "https://pypi.org/simple",
+            "uv_index": "https://pypi.org/simple",
+            "conda_channels": [
+                "https://repo.anaconda.com/pkgs/main",
+                "https://repo.anaconda.com/pkgs/free",
+                "https://conda.anaconda.org/conda-forge",
+            ]
+        },
+        "tsinghua": {
+            "name": "清华大学 (TUNA)",
+            "pip_index": "https://pypi.tuna.tsinghua.edu.cn/simple",
+            "uv_index": "https://pypi.tuna.tsinghua.edu.cn/simple",
+            "conda_channels": [
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/",
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
+            ]
+        },
+        "aliyun": {
+            "name": "阿里云",
+            "pip_index": "https://mirrors.aliyun.com/pypi/simple/",
+            "uv_index": "https://mirrors.aliyun.com/pypi/simple/",
+            "conda_channels": [
+                "https://mirrors.aliyun.com/anaconda/cloud/conda-forge/",
+                "https://mirrors.aliyun.com/anaconda/pkgs/main/",
+                "https://mirrors.aliyun.com/anaconda/pkgs/free/",
+            ]
+        },
+        "ustc": {
+            "name": "中国科学技术大学 (USTC)",
+            "pip_index": "https://pypi.mirrors.ustc.edu.cn/simple/",
+            "uv_index": "https://pypi.mirrors.ustc.edu.cn/simple/",
+            "conda_channels": [
+                "https://mirrors.ustc.edu.cn/anaconda/cloud/conda-forge/",
+                "https://mirrors.ustc.edu.cn/anaconda/pkgs/main/",
+                "https://mirrors.ustc.edu.cn/anaconda/pkgs/free/",
+            ]
+        },
+        "tencent": {
+            "name": "腾讯云",
+            "pip_index": "https://mirrors.cloud.tencent.com/pypi/simple/",
+            "uv_index": "https://mirrors.cloud.tencent.com/pypi/simple/",
+            "conda_channels": [
+                "https://mirrors.cloud.tencent.com/anaconda/cloud/conda-forge/",
+                "https://mirrors.cloud.tencent.com/anaconda/pkgs/main/",
+                "https://mirrors.cloud.tencent.com/anaconda/pkgs/free/",
+            ]
+        },
+        "huawei": {
+            "name": "华为云",
+            "pip_index": "https://repo.huaweicloud.com/repository/pypi/simple/",
+            "uv_index": "https://repo.huaweicloud.com/repository/pypi/simple/",
+            "conda_channels": [
+                "https://repo.huaweicloud.com/anaconda/cloud/conda-forge/",
+                "https://repo.huaweicloud.com/anaconda/pkgs/main/",
+                "https://repo.huaweicloud.com/anaconda/pkgs/free/",
+            ]
+        },
+        "douban": {
+            "name": "豆瓣",
+            "pip_index": "https://pypi.douban.com/simple/",
+            "uv_index": "https://pypi.douban.com/simple/",
+            "conda_channels": [
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge/",
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
+                "https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
+            ]
+        }
+    }
+    
+    # 当前使用的镜像源 (默认清华)
+    CURRENT_MIRROR = "tsinghua"
+    
+    # 动态获取当前镜像源配置
+    @classmethod
+    def get_pip_index(cls) -> str:
+        return cls.MIRROR_SOURCES.get(cls.CURRENT_MIRROR, cls.MIRROR_SOURCES["tsinghua"])["pip_index"]
+    
+    @classmethod
+    def get_uv_index(cls) -> str:
+        return cls.MIRROR_SOURCES.get(cls.CURRENT_MIRROR, cls.MIRROR_SOURCES["tsinghua"])["uv_index"]
+    
+    @classmethod
+    def get_conda_channels(cls) -> List[str]:
+        return cls.MIRROR_SOURCES.get(cls.CURRENT_MIRROR, cls.MIRROR_SOURCES["tsinghua"])["conda_channels"]
+    
+    @classmethod
+    def set_mirror(cls, mirror_key: str) -> bool:
+        """设置镜像源"""
+        if mirror_key in cls.MIRROR_SOURCES:
+            cls.CURRENT_MIRROR = mirror_key
+            return True
+        return False
     
     # 性能参数
     DEFAULT_MAX_WORKERS = 4
@@ -143,7 +232,7 @@ class RichProgress:
         self.total = total
         self.progress = None
         self.task_id = None
-        self._enabled = RICH_AVAILABLE and Config.VERBOSE
+        self._enabled = RICH_AVAILABLE
     
     def __enter__(self):
         if self._enabled and self.total:
@@ -182,6 +271,14 @@ class RichProgress:
         """设置总数"""
         if self.progress and self.task_id is not None:
             self.progress.update(self.task_id, total=total)
+    
+    def get_percentage(self) -> float:
+        """获取当前进度百分比"""
+        if self.progress and self.task_id is not None:
+            task = self.progress.tasks[self.task_id]
+            if task.total and task.total > 0:
+                return (task.completed / task.total) * 100
+        return 0.0
     
     @staticmethod
     def print_table(title: str, columns: List[str], rows: List[List[str]]):
@@ -736,7 +833,7 @@ class NetworkChecker:
     @staticmethod
     def check_conda_mirror() -> Tuple[bool, str]:
         """检查 Conda 镜像可用性"""
-        for channel in Config.CONDA_CHANNELS[:2]:
+        for channel in Config.get_conda_channels()[:2]:
             try:
                 import urllib.request
                 urllib.request.urlopen(channel, timeout=5)
@@ -750,7 +847,7 @@ class NetworkChecker:
         """检查 Pip 镜像可用性"""
         try:
             import urllib.request
-            urllib.request.urlopen(Config.PIP_INDEX, timeout=5)
+            urllib.request.urlopen(Config.get_pip_index(), timeout=5)
             return True
         except:
             return False
@@ -877,6 +974,79 @@ class OnlinePackageIndex:
                 pip_list.append(pkg)
         
         return conda_list, pip_list
+    
+    def get_latest_versions(self, packages: List[PackageInfo]) -> List[PackageInfo]:
+        """
+        获取包的最新版本信息
+        
+        Args:
+            packages: 包列表（包含备份版本信息）
+            
+        Returns:
+            更新后的包列表（版本号更新为最新）
+        """
+        updated_packages = []
+        
+        log(f"正在查询 {len(packages)} 个包的最新版本...")
+        
+        for i, pkg in enumerate(packages, 1):
+            # 显示进度
+            if i % 10 == 0 or i == len(packages):
+                pct = (i / len(packages)) * 100
+                print(f"\r  🔍 查询最新版本: {i}/{len(packages)} ({pct:.1f}%)", end="", flush=True)
+            
+            updated_pkg = PackageInfo(
+                name=pkg.name,
+                version=pkg.version,  # 默认保持原版本
+                source=pkg.source,
+                channel=pkg.channel
+            )
+            
+            # 尝试从 PyPI 获取最新版本
+            try:
+                import urllib.request
+                import urllib.error
+                
+                norm_name = normalize_name(pkg.name)
+                url = f"https://pypi.org/pypi/{norm_name}/json"
+                
+                req = urllib.request.Request(url, headers={'User-Agent': 'conda-env-toolkit'})
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+                    
+                    latest_version = data.get('info', {}).get('version', '')
+                    if latest_version:
+                        updated_pkg.version = latest_version
+                        
+            except (urllib.error.HTTPError, urllib.error.URLError, Exception):
+                # 如果 PyPI 查询失败，尝试 conda 渠道
+                try:
+                    # 使用 conda search 查询最新版本
+                    cmd = ["conda", "search", pkg.name, "--json"]
+                    ok, stdout, _ = run_cmd(cmd, timeout=30, capture=True)
+                    
+                    if ok and stdout:
+                        search_result = json.loads(stdout)
+                        if search_result and pkg.name in search_result:
+                            versions = [item.get('version', '') for item in search_result[pkg.name]]
+                            versions = [v for v in versions if v]
+                            if versions:
+                                # 获取最新版本（简单字符串比较）
+                                latest = max(versions, key=lambda v: [int(x) for x in re.findall(r'\d+', v)] if re.findall(r'\d+', v) else [0])
+                                updated_pkg.version = latest
+                                
+                except Exception:
+                    pass  # 保持原版本
+            
+            updated_packages.append(updated_pkg)
+        
+        print()  # 换行
+        
+        # 统计更新情况
+        updated_count = sum(1 for i, p in enumerate(updated_packages) if p.version != packages[i].version)
+        log(f"✅ 已更新 {updated_count}/{len(packages)} 个包到最新版本")
+        
+        return updated_packages
 
 
 def normalize_name(name: str) -> str:
@@ -1089,9 +1259,88 @@ class CondaManager:
         success, _, _ = run_cmd(["conda", "remove", "-n", env_name, "--all", "-y"], timeout=120)
         return success
     
+    @staticmethod
+    def analyze_failure_reason(package_name: str, stderr: str = "") -> str:
+        """分析包安装失败的原因"""
+        name_lower = package_name.lower()
+        stderr_lower = stderr.lower() if stderr else ""
+        
+        # 先根据包名特征判断（优先级最高）
+        # 1. 检查是否是系统库/开发包
+        if any(kw in name_lower for kw in ['libasprintf', 'libblas', 'libcblas', 'libgcc', 'libgomp', 'libgettext', 'libfreetype', 'libstdcxx', 'libgfortran']):
+            return "系统库/开发包，可能需要通过系统包管理器安装"
+        
+        # 2. 编译相关
+        if any(kw in name_lower for kw in ['cython', 'cmake', 'make', 'gcc', 'visual', 'clang', 'llvm']):
+            return "缺少编译工具或C/C++依赖"
+        
+        # 3. 平台特定
+        if any(kw in name_lower for kw in ['win32', 'linux', 'macos', 'darwin', 'windows', 'unix']):
+            return "平台特定包，当前操作系统不支持"
+        
+        # 4. 大型包/深度学习
+        if any(kw in name_lower for kw in ['torch', 'tensorflow', 'cuda', 'cudnn', 'jax', 'mxnet']):
+            return "大型包/深度学习框架下载或安装失败"
+        
+        # 5. 科学计算包
+        if any(kw in name_lower for kw in ['numpy', 'scipy', 'pandas', 'matplotlib', 'sklearn', 'scikit']):
+            return "科学计算包依赖复杂，可能与其他包冲突"
+        
+        # 6. 图像处理
+        if any(kw in name_lower for kw in ['pillow', 'opencv', 'cv2', 'imageio', 'scikit-image']):
+            return "图像处理库需要多媒体编解码器"
+        
+        # 7. GUI库
+        if any(kw in name_lower for kw in ['pyqt', 'pyside', 'tkinter', 'wxpython', 'kivy', 'pygtk']):
+            return "GUI库需要图形系统依赖"
+        
+        # 8. 加密库
+        if any(kw in name_lower for kw in ['cryptography', 'pycrypto', 'openssl']):
+            return "加密库需要OpenSSL等安全库"
+        
+        # 9. 数据库驱动
+        if any(kw in name_lower for kw in ['mysql', 'postgresql', 'psycopg', 'pymongo', 'redis']):
+            return "数据库驱动需要额外的系统库或客户端"
+        
+        # 然后根据 stderr 错误信息判断
+        # 10. 检查是否在conda渠道中找到
+        if "not found" in stderr_lower or "could not find" in stderr_lower or "no matching" in stderr_lower or "packagesnotfounderror" in stderr_lower:
+            return "包在配置的渠道中未找到"
+        
+        # 11. 网络问题
+        if "timeout" in stderr_lower or "connection" in stderr_lower or "network" in stderr_lower or "temporary failure" in stderr_lower:
+            return "网络连接超时或不稳定"
+        
+        # 12. SSL证书问题
+        if "ssl" in stderr_lower or "certificate" in stderr_lower:
+            return "SSL证书验证失败"
+        
+        # 13. 依赖冲突
+        if "conflict" in stderr_lower or "incompatible" in stderr_lower or "unsatisfiable" in stderr_lower:
+            return "与现有包存在依赖冲突"
+        
+        # 14. 权限问题
+        if "permission" in stderr_lower or "denied" in stderr_lower or "access" in stderr_lower:
+            return "权限不足，无法写入环境目录"
+        
+        # 15. 磁盘空间
+        if "disk" in stderr_lower or "space" in stderr_lower or "no space" in stderr_lower:
+            return "磁盘空间不足"
+        
+        # 16. 内存不足
+        if "memory" in stderr_lower or "oom" in stderr_lower:
+            return "内存不足"
+        
+        # 17. Python版本不兼容
+        if "python" in stderr_lower and "version" in stderr_lower:
+            return "Python版本不兼容"
+        
+        # 默认
+        return "安装失败，具体原因请查看详细日志"
+    
     def install_package(self, env_name: str, package: str, 
                        channel: str = None, timeout: int = None,
-                       fallback_versions: bool = True) -> bool:
+                       fallback_versions: bool = True) -> Tuple[bool, str]:
         """
         安装单个包，支持版本回退策略
         
@@ -1101,6 +1350,9 @@ class CondaManager:
             channel: 指定频道
             timeout: 超时时间
             fallback_versions: 失败时是否尝试其他版本
+            
+        Returns:
+            (是否成功, 失败原因)
         """
         cmd = ["conda", "install", "-n", env_name, "-y"]
         if channel:
@@ -1116,50 +1368,84 @@ class CondaManager:
             
             # 尝试不指定版本 (最新版)
             cmd[-1] = pkg_name
-            success, _, _ = run_cmd(cmd, timeout=timeout or Config.TIMEOUT_INSTALL)
+            success, _, stderr = run_cmd(cmd, timeout=timeout or Config.TIMEOUT_INSTALL)
             
             if success:
                 log(f"  ✅ {pkg_name} (最新版) 安装成功", LogLevel.SUCCESS)
-                return True
+                return True, ""
             
             # 尝试常见兼容版本
             common_versions = ["", ">=1.0", ">=0.1"]
             for ver_suffix in common_versions:
                 cmd[-1] = f"{pkg_name}{ver_suffix}"
-                success, _, _ = run_cmd(cmd, timeout=60)
+                success, _, stderr = run_cmd(cmd, timeout=60)
                 if success:
                     log(f"  ✅ {pkg_name}{ver_suffix} 安装成功", LogLevel.SUCCESS)
-                    return True
+                    return True, ""
         
-        return success
+        if not success:
+            reason = self.analyze_failure_reason(package, stderr)
+            return False, reason
+        
+        return True, ""
+    
+    def get_package_version(self, env_name: str, package_name: str) -> Optional[str]:
+        """获取环境中已安装包的版本"""
+        packages = self.get_packages(env_name)
+        for pkg in packages:
+            if pkg.name.lower() == package_name.lower():
+                return pkg.version
+        return None
     
     def install_packages_batch(self, env_name: str, packages: List[str],
-                               max_workers: int = None) -> Tuple[List[str], List[str]]:
-        """批量安装包 (并行)"""
+                               max_workers: int = None) -> Tuple[List[str], List[str], Dict[str, str]]:
+        """批量安装包 (并行，带进度显示和失败原因分析)"""
         if not packages:
-            return [], []
+            return [], [], {}
         
         max_workers = max_workers or Config.DEFAULT_MAX_WORKERS
         success_list = []
         failed_list = []
+        failed_reasons = {}  # 包名 -> 失败原因
         lock = threading.Lock()
+        completed_count = [0]  # 使用列表以便在闭包中修改
         
         def install_one(pkg: str) -> bool:
-            ok = self.install_package(env_name, pkg)
+            ok, reason = self.install_package(env_name, pkg)
             with lock:
+                completed_count[0] += 1
                 if ok:
                     success_list.append(pkg)
-                    log(f"  ✅ {pkg}")
+                    print(f"\r  ✅ {pkg:<30}", flush=True)
                 else:
                     failed_list.append(pkg)
-                    log(f"  ❌ {pkg}")
+                    failed_reasons[pkg] = reason
+                    print(f"\r  ❌ {pkg:<30}", flush=True)
+                    print(f"     原因: {reason}")
+                
+                # 每5个包或最后一个包显示进度
+                if completed_count[0] % 5 == 0 or completed_count[0] == len(packages):
+                    pct = (completed_count[0] / len(packages)) * 100
+                    print(f"  📊 并行安装进度: {completed_count[0]}/{len(packages)} ({pct:.1f}%)")
+            
             return ok
         
         log(f"并行安装 {len(packages)} 个包 (workers={max_workers})...")
+        print(f"  📊 并行安装进度: 0/{len(packages)} (0.0%)")
+        
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             list(executor.map(install_one, packages))
         
-        return success_list, failed_list
+        log(f"并行安装完成: {len(success_list)} 成功, {len(failed_list)} 失败")
+        
+        # 显示失败包汇总
+        if failed_list:
+            print("\n  ❌ 失败包汇总:")
+            for pkg in failed_list:
+                reason = failed_reasons.get(pkg, "未知原因")
+                print(f"    • {pkg}: {reason}")
+        
+        return success_list, failed_list, failed_reasons
 
 
 class UVManager:
@@ -1225,12 +1511,13 @@ class UVManager:
     def install_packages(self, packages: List[str], 
                         parallel: bool = False,
                         max_workers: int = None) -> Tuple[List[str], List[str]]:
-        """安装多个包"""
+        """安装多个包 (带进度显示)"""
         if not packages:
             return [], []
         
         # UV 本身支持并行，直接使用
         log(f"使用 UV 安装 {len(packages)} 个包...")
+        print(f"  📊 UV安装进度: 0/{len(packages)} (0.0%)", end="", flush=True)
         
         cmd = ["uv", "pip", "install"]
         if self.venv_path:
@@ -1240,17 +1527,29 @@ class UVManager:
         success, stdout, stderr = run_cmd(cmd, timeout=600)
         
         if success:
+            print(f"\r  📊 UV安装进度: {len(packages)}/{len(packages)} (100.0%)")
+            log(f"✅ UV安装完成: {len(packages)} 个包")
             return packages, []
         else:
             # 失败时逐个尝试
+            print()  # 换行
             log("批量安装失败，尝试逐个安装...", LogLevel.WARNING)
             success_list = []
             failed_list = []
-            for pkg in packages:
+            for i, pkg in enumerate(packages, 1):
                 if self.install_package(pkg):
                     success_list.append(pkg)
+                    log(f"  ✅ {pkg}")
                 else:
                     failed_list.append(pkg)
+                    log(f"  ❌ {pkg}")
+                
+                # 每5个包显示进度
+                if i % 5 == 0 or i == len(packages):
+                    pct = (i / len(packages)) * 100
+                    print(f"\r  📊 UV逐个安装进度: {i}/{len(packages)} ({pct:.1f}%)", end="", flush=True)
+            
+            print()  # 换行
             return success_list, failed_list
     
     def get_installed_packages(self) -> List[Dict]:
@@ -1492,7 +1791,7 @@ class BackupManager:
             with open(yaml_file, "w", encoding="utf-8") as f:
                 f.write(f"name: {env_name}\n")
                 f.write(f"channels:\n")
-                for ch in Config.CONDA_CHANNELS:
+                for ch in Config.get_conda_channels():
                     f.write(f"  - {ch}\n")
                 f.write(f"dependencies:\n")
                 f.write(f"  - python={python_version}\n")
@@ -1602,7 +1901,8 @@ class RestoreManager:
     
     def restore_conda(self, backup_file: str, target_env: str = None,
                       use_uv: bool = False, parallel: bool = False,
-                      max_workers: int = None, resume: bool = True) -> RestoreReport:
+                      max_workers: int = None, resume: bool = True,
+                      recovery_mode: str = "backup") -> RestoreReport:
         """
         恢复 Conda 环境
         
@@ -1613,6 +1913,7 @@ class RestoreManager:
             parallel: 是否并行安装
             max_workers: 并行工作数
             resume: 是否启用断点续传
+            recovery_mode: 恢复模式 ("backup"=备份版本, "latest"=最新版本)
         """
         # 加载备份 (检查文件是否存在)
         if not os.path.exists(backup_file):
@@ -1657,6 +1958,16 @@ class RestoreManager:
         target = target_env or env_info.name
         log(f"恢复环境: {target}")
         
+        # 根据恢复模式处理包版本
+        if recovery_mode == "latest":
+            log("[LATEST] 使用最新版本恢复模式", LogLevel.HIGHLIGHT)
+            log("正在查询各包的最新版本（这可能需要一些时间）...")
+            indexer = OnlinePackageIndex()
+            env_info.packages = indexer.get_latest_versions(env_info.packages)
+            log("✅ 已更新所有包到最新版本")
+        else:
+            log("[BACKUP] 使用备份版本恢复模式（默认）", LogLevel.INFO)
+        
         # 断点续传
         state = None
         if resume and os.path.exists(Config.STATE_FILE):
@@ -1672,17 +1983,65 @@ class RestoreManager:
             python_ver = env_info.python_version or "3.11"
             self.conda.create_env(target, python_ver)
         
+        # 获取目标环境中已安装的包（用于智能跳过）
+        log("检查目标环境已安装的包...")
+        existing_packages = {}
+        try:
+            for pkg in self.conda.get_packages(target):
+                existing_packages[pkg.name.lower()] = pkg.version
+            log(f"目标环境已有 {len(existing_packages)} 个包")
+        except Exception as e:
+            log(f"获取目标环境包列表失败: {e}", LogLevel.WARNING)
+        
         # 分类包
         packages = env_info.packages
         self.report.total_packages = len(packages)
         
         conda_packages = []
         pip_packages = []
+        skipped_packages = []
         
         for pkg in packages:
             if state.is_completed(pkg.name):
                 self.report.already_installed += 1
                 continue
+            
+            # 智能跳过：检查是否已安装且版本相同或更新
+            pkg_name_lower = pkg.name.lower()
+            if pkg_name_lower in existing_packages:
+                existing_ver = existing_packages[pkg_name_lower]
+                backup_ver = pkg.version
+                
+                # 版本比较
+                should_skip = False
+                if backup_ver and existing_ver:
+                    try:
+                        # 使用简单的版本比较（基于分割后的数字比较）
+                        def parse_version(v):
+                            return [int(x) for x in re.findall(r'\d+', v)]
+                        
+                        existing_v = parse_version(existing_ver)
+                        backup_v = parse_version(backup_ver)
+                        
+                        # 如果现有版本 >= 备份版本，则跳过
+                        if existing_v >= backup_v:
+                            should_skip = True
+                    except:
+                        # 如果解析失败，字符串比较
+                        should_skip = existing_ver >= backup_ver
+                elif existing_ver:
+                    # 备份中没有版本号，但环境中有，认为环境已安装
+                    should_skip = True
+                
+                if should_skip:
+                    skipped_packages.append({
+                        "name": pkg.name,
+                        "backup_version": backup_ver,
+                        "existing_version": existing_ver
+                    })
+                    self.report.already_installed += 1
+                    log(f"  ⏭️  跳过 {pkg.name}: 已安装 {existing_ver} (备份版本: {backup_ver})")
+                    continue
             
             source = PackageDatabase.classify(pkg.name)
             if source == PackageSource.CONDA:
@@ -1690,31 +2049,38 @@ class RestoreManager:
             else:
                 pip_packages.append(pkg)
         
+        if skipped_packages:
+            log(f"⏭️  智能跳过 {len(skipped_packages)} 个已安装且版本相同或更新的包")
+        
         log(f"待安装: {len(conda_packages)} Conda 包, {len(pip_packages)} Pip 包")
         
-        # 安装 Conda 包 (带 Rich 进度条)
+        # 安装 Conda 包 (带实时百分比进度)
         if conda_packages:
             log(f"安装 {len(conda_packages)} 个 Conda 包...")
-            with RichProgress("安装 Conda 包", total=len(conda_packages)) as progress:
-                if parallel:
-                    names = [p.name for p in conda_packages]
-                    success, failed = self.conda.install_packages_batch(target, names, max_workers)
-                    self.report.conda_success.extend(success)
-                    for pkg_name in success:
-                        progress.update(1)
-                    for pkg_name in failed:
-                        self.report.failed.append({"name": pkg_name, "error": "安装失败"})
-                        progress.update(1)
-                else:
-                    for pkg in conda_packages:
-                        if self.conda.install_package(target, pkg.name):
-                            self.report.conda_success.append(pkg.name)
-                            state.mark_completed(pkg.name)
-                        else:
-                            self.report.failed.append({"name": pkg.name, "error": "Conda安装失败"})
-                        progress.update(1)
+            if parallel:
+                names = [p.name for p in conda_packages]
+                success, failed, failed_reasons = self.conda.install_packages_batch(target, names, max_workers)
+                self.report.conda_success.extend(success)
+                for pkg_name in failed:
+                    reason = failed_reasons.get(pkg_name, "安装失败")
+                    self.report.failed.append({"name": pkg_name, "error": reason})
+                print(f"  📊 Conda包进度: {len(success)}/{len(names)} ({len(success)/len(names)*100:.1f}%)")
+            else:
+                for i, pkg in enumerate(conda_packages, 1):
+                    ok, reason = self.conda.install_package(target, pkg.name)
+                    if ok:
+                        self.report.conda_success.append(pkg.name)
+                        state.mark_completed(pkg.name)
+                    else:
+                        self.report.failed.append({"name": pkg.name, "error": reason})
+                        print(f"  ❌ {pkg.name}: {reason}")
+                    # 每10个包打印一次百分比进度
+                    if i % 10 == 0 or i == len(conda_packages):
+                        pct = (i / len(conda_packages)) * 100
+                        print(f"\r  📊 Conda包进度: {i}/{len(conda_packages)} ({pct:.1f}%)", end="", flush=True)
+                print()  # 换行
         
-        # 安装 Pip 包 (使用 UV 或 Pip，带 Rich 进度条)
+        # 安装 Pip 包 (使用 UV 或 Pip，带实时百分比进度)
         if pip_packages:
             log(f"安装 {len(pip_packages)} 个 Pip 包...")
             
@@ -1722,27 +2088,32 @@ class RestoreManager:
                 log("使用 UV 加速安装", LogLevel.UV)
                 uv = UVManager()
                 names = [f"{p.name}=={p.version}" if p.version else p.name for p in pip_packages]
-                with RichProgress("UV 安装 Pip 包", total=len(names)) as progress:
-                    success, failed = uv.install_packages(names)
-                    self.report.uv_success.extend([p.name for p in pip_packages if p.name in success])
-                    for _ in success:
-                        progress.update(1)
-                    for pkg_name in failed:
-                        self.report.failed.append({"name": pkg_name, "error": "UV安装失败"})
-                        progress.update(1)
+                success, failed = uv.install_packages(names)
+                self.report.uv_success.extend([p.name for p in pip_packages if p.name in success])
+                for pkg_name in failed:
+                    self.report.failed.append({"name": pkg_name, "error": "UV安装失败"})
+                # UV批量安装完成后打印总体进度
+                if names:
+                    total = len(names)
+                    completed = len(success) + len(failed)
+                    pct = (completed / total) * 100
+                    print(f"  📊 UV安装进度: {completed}/{total} ({pct:.1f}%)")
             else:
                 # 使用 pip
                 names = [p.name for p in pip_packages]
-                with RichProgress("Pip 安装包", total=len(names)) as progress:
-                    for pkg_name in names:
-                        cmd = ["conda", "run", "-n", target, "pip", "install", pkg_name]
-                        ok, _, _ = run_cmd(cmd, timeout=120)
-                        if ok:
-                            self.report.pip_success.append(pkg_name)
-                            state.mark_completed(pkg_name)
-                        else:
-                            self.report.failed.append({"name": pkg_name, "error": "Pip安装失败"})
-                        progress.update(1)
+                for i, pkg_name in enumerate(names, 1):
+                    cmd = ["conda", "run", "-n", target, "pip", "install", pkg_name]
+                    ok, _, _ = run_cmd(cmd, timeout=120)
+                    if ok:
+                        self.report.pip_success.append(pkg_name)
+                        state.mark_completed(pkg_name)
+                    else:
+                        self.report.failed.append({"name": pkg_name, "error": "Pip安装失败"})
+                    # 每5个包打印一次百分比进度
+                    if i % 5 == 0 or i == len(names):
+                        pct = (i / len(names)) * 100
+                        print(f"\r  📊 Pip包进度: {i}/{len(names)} ({pct:.1f}%)", end="", flush=True)
+                print()  # 换行
         
         # 完成
         self.report.end_time = datetime.now().isoformat()
@@ -1750,9 +2121,342 @@ class RestoreManager:
         
         # 保存报告
         self.report.save()
+        
+        # 打印跳过的包信息
+        if skipped_packages:
+            print("\n" + "="*70)
+            print("⏭️  智能跳过的包 (已安装且版本相同或更新):")
+            print("="*70)
+            for pkg in skipped_packages[:20]:
+                print(f"  • {pkg['name']}: 已安装 {pkg['existing_version']} >= 备份 {pkg['backup_version']}")
+            if len(skipped_packages) > 20:
+                print(f"  ... 还有 {len(skipped_packages) - 20} 个")
+            print("="*70)
+        
+        # 恢复后对比报告
+        self._print_restore_comparison(target, env_info.packages, skipped_packages)
+        
         self.report.print_summary()
         
         return self.report
+    
+    def _print_restore_comparison(self, target_env: str, backup_packages: List[PackageInfo], skipped_packages: List[Dict]):
+        """打印恢复后的环境对比报告"""
+        try:
+            # 获取当前环境的包列表
+            current_packages = self.conda.get_packages(target_env)
+            current_dict = {p.name.lower(): p for p in current_packages}
+            backup_dict = {p.name.lower(): p for p in backup_packages}
+            
+            # 统计信息
+            backup_count = len(backup_packages)
+            current_count = len(current_packages)
+            
+            # 分析差异
+            missing_packages = []  # 备份中有但环境中没有（安装失败）
+            version_diff = []      # 版本不一致
+            extra_packages = []    # 环境中有但备份中没有（额外安装）
+            
+            for pkg in backup_packages:
+                pkg_name = pkg.name.lower()
+                if pkg_name in current_dict:
+                    current_ver = current_dict[pkg_name].version
+                    backup_ver = pkg.version
+                    if current_ver != backup_ver:
+                        version_diff.append({
+                            "name": pkg.name,
+                            "backup_ver": backup_ver,
+                            "current_ver": current_ver
+                        })
+                else:
+                    # 检查是否在跳过列表中（智能跳过的不算缺失）
+                    if not any(s["name"].lower() == pkg_name for s in skipped_packages):
+                        missing_packages.append(pkg)
+            
+            # 查找额外包（环境中多出来的）
+            for name, pkg in current_dict.items():
+                if name not in backup_dict:
+                    extra_packages.append(pkg)
+            
+            # 打印对比报告
+            print("\n" + "="*70)
+            print("📊 恢复后环境对比报告")
+            print("="*70)
+            print(f"  目标环境: {target_env}")
+            print(f"  备份包数: {backup_count}")
+            print(f"  当前包数: {current_count}")
+            print(f"  差异: {current_count - backup_count:+,d}")
+            print("-"*70)
+            
+            # 安装成功统计
+            success_count = len(self.report.conda_success) + len(self.report.pip_success) + len(self.report.uv_success)
+            failed_count = len(self.report.failed)
+            skipped_count = len(skipped_packages)
+            
+            print(f"\n  ✅ 本次安装成功: {success_count} 个")
+            print(f"  ❌ 安装失败: {failed_count} 个")
+            print(f"  ⏭️  智能跳过: {skipped_count} 个")
+            
+            # 失败详情与建议
+            if missing_packages:
+                print(f"\n  ❌ 安装失败的包 ({len(missing_packages)} 个):")
+                print("  " + "-"*66)
+                for pkg in missing_packages[:15]:
+                    # 获取失败原因和建议
+                    fail_info = self._get_failure_info(pkg.name)
+                    print(f"     • {pkg.name} (备份版本: {pkg.version or 'unknown'})")
+                    print(f"       原因: {fail_info['reason']}")
+                    print(f"       建议: {fail_info['suggestion']}")
+                    print()
+                if len(missing_packages) > 15:
+                    print(f"     ... 还有 {len(missing_packages) - 15} 个")
+                
+                # 通用建议
+                print("  " + "-"*66)
+                print("  💡 通用解决方案:")
+                print("     1. 手动安装: conda install -n {env} <package_name>")
+                print("     2. 使用pip安装: conda run -n {env} pip install <package_name>")
+                print("     3. 更换镜像源: conda config --add channels <mirror_url>")
+                print("     4. 查看详细日志: 检查上方安装输出中的错误信息")
+                print("     5. 网络问题: 检查网络连接或配置代理")
+                
+                # 输出失败日志文件
+                self._save_failure_log(target_env, missing_packages)
+            
+            # 版本差异
+            if version_diff:
+                print(f"\n  🔄 版本差异 ({len(version_diff)} 个):")
+                for item in version_diff[:10]:
+                    print(f"     • {item['name']}: 备份 {item['backup_ver']} → 当前 {item['current_ver']}")
+                if len(version_diff) > 10:
+                    print(f"     ... 还有 {len(version_diff) - 10} 个")
+            
+            # 额外包
+            if extra_packages:
+                print(f"\n  ➕ 额外包 ({len(extra_packages)} 个) - 环境中已存在或依赖引入:")
+                for pkg in extra_packages[:10]:
+                    print(f"     • {pkg.name} ({pkg.version or 'unknown'})")
+                if len(extra_packages) > 10:
+                    print(f"     ... 还有 {len(extra_packages) - 10} 个")
+            
+            # 恢复度评估
+            if backup_count > 0:
+                actual_success = current_count - len(extra_packages)
+                restore_ratio = (actual_success / backup_count) * 100
+                print(f"\n  📈 恢复完整度: {restore_ratio:.1f}%")
+                
+                if restore_ratio >= 95:
+                    print("  🎯 评价: 优秀 - 环境恢复非常完整")
+                elif restore_ratio >= 80:
+                    print("  👍 评价: 良好 - 环境基本可用，部分包缺失")
+                elif restore_ratio >= 60:
+                    print("  ⚠️  评价: 一般 - 环境可用但缺失较多包")
+                else:
+                    print("  ❌ 评价: 较差 - 环境恢复不完整，建议检查")
+            
+            print("="*70)
+            
+        except Exception as e:
+            log(f"生成对比报告失败: {e}", LogLevel.WARNING)
+    
+    def _get_failure_info(self, package_name: str) -> Dict[str, str]:
+        """获取包安装失败的原因分析和建议"""
+        result = {
+            "reason": "未知错误",
+            "suggestion": "请查看详细错误日志"
+        }
+        
+        # 常见失败原因模式匹配
+        name_lower = package_name.lower()
+        
+        # 1. 网络相关 - 大型包/深度学习框架
+        if any(kw in name_lower for kw in ['torch', 'tensorflow', 'cuda', 'cudnn', 'jax', 'mxnet']):
+            result = {
+                "reason": "大型包/深度学习框架下载超时或网络不稳定",
+                "suggestion": "① 使用国内镜像: pip install -i https://pypi.tuna.tsinghua.edu.cn/simple <package>\n" +
+                             "② 手动下载whl文件从 https://download.pytorch.org/whl 安装\n" +
+                             "③ 使用conda安装: conda install pytorch torchvision -c pytorch"
+            }
+        # 2. Git依赖
+        elif any(kw in name_lower for kw in ['git', 'github']):
+            result = {
+                "reason": "Git依赖或源码安装失败",
+                "suggestion": "① 确保已安装Git: git --version\n" +
+                             "② 尝试: pip install git+https://github.com/user/repo.git\n" +
+                             "③ 下载源码后本地安装: python setup.py install"
+            }
+        # 3. 编译相关
+        elif any(kw in name_lower for kw in ['cython', 'cmake', 'make', 'gcc', 'visual', 'clang', 'llvm']):
+            result = {
+                "reason": "缺少编译工具或C/C++依赖",
+                "suggestion": "① Windows: 安装Visual C++ Build Tools或Visual Studio\n" +
+                             "② Linux: sudo apt-get install build-essential python3-dev\n" +
+                             "③ macOS: xcode-select --install\n" +
+                             "④ 或寻找预编译版本: conda install <package>"
+            }
+        # 4. 特定平台
+        elif any(kw in name_lower for kw in ['win32', 'linux', 'macos', 'darwin', 'windows', 'unix']):
+            result = {
+                "reason": "平台特定包，当前操作系统可能不支持",
+                "suggestion": "① 寻找跨平台替代品\n" +
+                             "② 使用条件依赖: pip install <package>; platform_system!='Windows'\n" +
+                             "③ 在兼容的操作系统上安装"
+            }
+        # 5. 常见科学计算包
+        elif any(kw in name_lower for kw in ['numpy', 'scipy', 'pandas', 'matplotlib', 'sklearn', 'scikit']):
+            result = {
+                "reason": "科学计算包依赖复杂，可能与其他包冲突",
+                "suggestion": "① 使用conda-forge: conda install -c conda-forge <package>\n" +
+                             "② 先升级pip: pip install --upgrade pip\n" +
+                             "③ 使用--no-deps避免依赖冲突，再手动安装依赖\n" +
+                             "④ 创建干净环境单独安装"
+            }
+        # 6. 数据库驱动
+        elif any(kw in name_lower for kw in ['mysql', 'postgresql', 'psycopg', 'pymongo', 'redis', 'sqlalchemy']):
+            result = {
+                "reason": "数据库驱动需要额外的系统库或客户端",
+                "suggestion": "① 安装数据库客户端: sudo apt-get install libmysqlclient-dev\n" +
+                             "② 使用纯Python替代: pip install PyMySQL 替代 mysqlclient\n" +
+                             "③ 使用conda安装: conda install -c conda-forge <package>\n" +
+                             "④ 检查数据库服务是否可访问"
+            }
+        # 7. Web框架
+        elif any(kw in name_lower for kw in ['django', 'flask', 'fastapi', 'tornado', 'quart']):
+            result = {
+                "reason": "Web框架依赖复杂或版本不兼容",
+                "suggestion": "① 使用requirements.txt精确版本: pip install -r requirements.txt\n" +
+                             "② 检查Python版本兼容性\n" +
+                             "③ 先安装基础依赖: pip install setuptools wheel\n" +
+                             "④ 使用虚拟环境隔离安装"
+            }
+        # 8. GUI/图形库
+        elif any(kw in name_lower for kw in ['pyqt', 'pyside', 'tkinter', 'wxpython', 'kivy', 'pygtk']):
+            result = {
+                "reason": "GUI库需要图形系统依赖",
+                "suggestion": "① Linux安装X11: sudo apt-get install libx11-dev\n" +
+                             "② 安装Qt依赖: sudo apt-get install libqt5x11extras5\n" +
+                             "③ 使用无头模式: export QT_QPA_PLATFORM=offscreen\n" +
+                             "④ 或使用替代库: PySimpleGUI, DearPyGui"
+            }
+        # 9. 图像处理
+        elif any(kw in name_lower for kw in ['pillow', 'opencv', 'cv2', 'imageio', 'scikit-image']):
+            result = {
+                "reason": "图像处理库需要多媒体编解码器",
+                "suggestion": "① 安装系统图像库: sudo apt-get install libjpeg-dev libpng-dev\n" +
+                             "② OpenCV: conda install -c conda-forge opencv\n" +
+                             "③ 或安装headless版本: pip install opencv-python-headless\n" +
+                             "④ Pillow: pip install --no-binary :all: pillow"
+            }
+        # 10. 安全/加密
+        elif any(kw in name_lower for kw in ['cryptography', 'pycrypto', 'openssl', 'ssl', 'tls']):
+            result = {
+                "reason": "加密库需要OpenSSL等安全库",
+                "suggestion": "① 安装OpenSSL开发包: sudo apt-get install libssl-dev\n" +
+                             "② 升级cryptography: pip install --upgrade cryptography\n" +
+                             "③ 使用conda: conda install -c conda-forge cryptography\n" +
+                             "④ 检查系统证书: update-ca-certificates"
+            }
+        # 11. 版本冲突
+        elif any(kw in name_lower for kw in ['compat', 'conflict', 'version']):
+            result = {
+                "reason": "版本冲突或依赖不兼容",
+                "suggestion": "① 尝试安装不同版本: pip install <package>==<version>\n" +
+                             "② 创建新的干净环境\n" +
+                             "③ 使用pipdeptree检查依赖树: pip install pipdeptree\n" +
+                             "④ 强制安装: pip install --force-reinstall --no-deps <package>"
+            }
+        # 12. 权限问题
+        elif any(kw in name_lower for kw in ['permission', 'denied', 'access', 'admin']):
+            result = {
+                "reason": "权限不足，无法写入环境目录",
+                "suggestion": "① Windows: 以管理员身份运行终端\n" +
+                             "② Linux/macOS: sudo 或检查目录权限 chmod 755\n" +
+                             "③ 使用--user安装到用户目录: pip install --user <package>\n" +
+                             "④ 检查conda环境路径权限"
+            }
+        # 13. 已弃用/重命名包
+        elif any(kw in name_lower for kw in ['pil', 'skimage', 'yaml', 'configparser', 'urlparse']):
+            result = {
+                "reason": "包已弃用或重命名",
+                "suggestion": "① PIL → Pillow: pip install Pillow\n" +
+                             "② skimage → scikit-image: pip install scikit-image\n" +
+                             "③ yaml → PyYAML: pip install PyYAML\n" +
+                             "④ 搜索新包名: pip search <keyword> 或访问pypi.org"
+            }
+        # 14. 私有/内部包
+        elif any(kw in name_lower for kw in ['internal', 'private', 'company', 'corp']):
+            result = {
+                "reason": "私有包或内部包，公共源无法访问",
+                "suggestion": "① 配置私有PyPI: pip install --index-url <private-pypi> <package>\n" +
+                             "② 使用Git+SSH: pip install git+ssh://git@company.com/repo.git\n" +
+                             "③ 从内部Artifactory/Nexus安装\n" +
+                             "④ 联系包管理员获取安装方式"
+            }
+        # 15. 默认情况：检查是否在失败报告中
+        else:
+            # 查找具体错误信息
+            for failed in self.report.failed:
+                if failed.get("name", "").lower() == name_lower:
+                    error_msg = failed.get("error", "")
+                    if "not found" in error_msg.lower() or "could not find" in error_msg.lower() or "no matching" in error_msg.lower():
+                        result = {
+                            "reason": "包在配置的渠道中未找到或已不存在",
+                            "suggestion": "① 检查包名拼写\n" +
+                                         "② 尝试其他渠道: conda install -c conda-forge <package>\n" +
+                                         "③ 搜索包是否存在: pip search <package> 或访问 pypi.org/project/<package>\n" +
+                                         "④ 包可能已弃用，寻找替代品"
+                        }
+                    elif "conflict" in error_msg.lower() or "incompatible" in error_msg.lower():
+                        result = {
+                            "reason": "与现有包存在依赖冲突",
+                            "suggestion": "① 创建新环境安装\n" +
+                                         "② 升级/降级相关依赖\n" +
+                                         "③ 使用conda解决冲突: conda install <package>\n" +
+                                         "④ 查看冲突详情: pip install -v <package>"
+                        }
+                    elif "timeout" in error_msg.lower() or "connection" in error_msg.lower() or "network" in error_msg.lower():
+                        result = {
+                            "reason": "网络连接超时或无法访问",
+                            "suggestion": "① 检查网络连接: ping pypi.org\n" +
+                                         "② 更换镜像源: pip install -i https://pypi.tuna.tsinghua.edu.cn/simple <package>\n" +
+                                         "③ 配置代理: export HTTPS_PROXY=http://proxy:port\n" +
+                                         "④ 增加超时: pip install --default-timeout=100 <package>"
+                        }
+                    elif "ssl" in error_msg.lower() or "certificate" in error_msg.lower():
+                        result = {
+                            "reason": "SSL证书验证失败",
+                            "suggestion": "① 更新证书: pip install --upgrade certifi\n" +
+                                         "② 临时跳过验证: pip install --trusted-host pypi.org <package>\n" +
+                                         "③ 配置公司证书\n" +
+                                         "④ 检查系统时间是否正确"
+                        }
+                    elif "memory" in error_msg.lower() or "ram" in error_msg.lower():
+                        result = {
+                            "reason": "内存不足",
+                            "suggestion": "① 关闭其他程序释放内存\n" +
+                                         "② 增加虚拟内存/交换分区\n" +
+                                         "③ 分批安装包\n" +
+                                         "④ 使用--no-cache-dir减少内存使用"
+                        }
+                    elif "disk" in error_msg.lower() or "space" in error_msg.lower():
+                        result = {
+                            "reason": "磁盘空间不足",
+                            "suggestion": "① 清理磁盘空间\n" +
+                                         "② 清理pip缓存: pip cache purge\n" +
+                                         "③ 清理conda缓存: conda clean --all\n" +
+                                         "④ 更换安装路径到有足够空间的磁盘"
+                        }
+                    elif "python" in error_msg.lower() and "version" in error_msg.lower():
+                        result = {
+                            "reason": "Python版本不兼容",
+                            "suggestion": "① 检查包支持的Python版本\n" +
+                                         "② 升级Python或创建新版本环境\n" +
+                                         "③ 安装旧版本包: pip install <package>==<old_version>\n" +
+                                         "④ 使用pyenv管理多版本Python"
+                        }
+                    break
+        
+        return result
     
     def restore_uv(self, req_file: str, venv_path: str = None,
                    parallel: bool = False) -> bool:
@@ -1791,15 +2495,87 @@ class RestoreManager:
         
         return len(failed) == 0
     
-    def restore_all_from_backup_dir(self, backup_dir: str, 
+    def _save_failure_log(self, target_env: str, missing_packages: List[PackageInfo]):
+        """保存失败包日志文件"""
+        try:
+            # 创建日志目录
+            log_dir = Path("_restore_logs")
+            log_dir.mkdir(exist_ok=True)
+            
+            # 生成日志文件名
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_file = log_dir / f"{target_env}_failed_packages_{timestamp}.log"
+            
+            with open(log_file, "w", encoding="utf-8") as f:
+                f.write("="*70 + "\n")
+                f.write(f"恢复失败包日志 - 环境: {target_env}\n")
+                f.write(f"生成时间: {datetime.now().isoformat()}\n")
+                f.write("="*70 + "\n\n")
+                
+                # 统计信息
+                f.write(f"失败包总数: {len(missing_packages)}\n\n")
+                
+                # 详细列表
+                f.write("失败包详情:\n")
+                f.write("-"*70 + "\n")
+                for i, pkg in enumerate(missing_packages, 1):
+                    fail_info = self._get_failure_info(pkg.name)
+                    f.write(f"{i}. {pkg.name}\n")
+                    f.write(f"   备份版本: {pkg.version or 'unknown'}\n")
+                    f.write(f"   失败原因: {fail_info['reason']}\n")
+                    f.write(f"   解决建议: {fail_info['suggestion']}\n")
+                    f.write(f"   手动安装命令:\n")
+                    f.write(f"     conda: conda install -n {target_env} {pkg.name}\n")
+                    f.write(f"     pip:   conda run -n {target_env} pip install {pkg.name}\n")
+                    if pkg.version:
+                        f.write(f"     指定版本: conda run -n {target_env} pip install {pkg.name}=={pkg.version}\n")
+                    f.write("\n")
+                
+                # 通用解决方案
+                f.write("="*70 + "\n")
+                f.write("通用解决方案:\n")
+                f.write("-"*70 + "\n")
+                f.write("1. 手动安装单个包:\n")
+                f.write(f"   conda install -n {target_env} <package_name>\n")
+                f.write(f"   conda run -n {target_env} pip install <package_name>\n\n")
+                f.write("2. 更换镜像源:\n")
+                f.write("   conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/\n")
+                f.write("   conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/\n")
+                f.write("   conda config --add channels conda-forge\n\n")
+                f.write("3. 批量安装失败包:\n")
+                f.write("   将以下命令保存为脚本执行:\n\n")
+                f.write("   #!/bin/bash\n")
+                for pkg in missing_packages:
+                    f.write(f"   conda run -n {target_env} pip install {pkg.name} || true\n")
+                f.write("\n")
+                f.write("4. 网络问题排查:\n")
+                f.write("   - 检查网络连接\n")
+                f.write("   - 配置代理: export HTTP_PROXY=http://proxy:port\n")
+                f.write("   - 增加超时: pip install --default-timeout=100 <package>\n\n")
+                f.write("5. 查看详细错误:\n")
+                f.write("   - 检查上方安装输出的错误信息\n")
+                f.write("   - 查看conda日志: conda install -v <package>\n")
+                f.write("   - 查看pip日志: pip install -v <package>\n\n")
+                
+                f.write("="*70 + "\n")
+                f.write("日志结束\n")
+            
+            print(f"\n  📝 失败包日志已保存: {log_file}")
+            print(f"     包含 {len(missing_packages)} 个失败包的详细信息和解决方案")
+            
+        except Exception as e:
+            log(f"保存失败日志失败: {e}", LogLevel.WARNING)
+    
+    def restore_all_from_backup_dir(self, backup_dir: str,
                                     restore_mode: str = "all",
                                     selected_envs: List[str] = None,
-                                    use_uv: bool = False, 
+                                    use_uv: bool = False,
                                     parallel: bool = False,
-                                    resume: bool = True) -> Dict[str, RestoreReport]:
+                                    resume: bool = True,
+                                    recovery_mode: str = "backup") -> Dict[str, RestoreReport]:
         """
         从备份目录批量恢复环境
-        
+
         Args:
             backup_dir: 备份目录路径
             restore_mode: 恢复模式 ("all"=全部, "select"=选择)
@@ -1807,7 +2583,8 @@ class RestoreManager:
             use_uv: 是否使用 UV 加速
             parallel: 是否并行安装
             resume: 是否启用断点续传
-            
+            recovery_mode: 恢复模式 ("backup"=备份版本, "latest"=最新版本)
+
         Returns:
             每个环境的恢复报告字典
         """
@@ -1815,33 +2592,108 @@ class RestoreManager:
             log(f"备份目录不存在: {backup_dir}", LogLevel.ERROR)
             return {}
         
-        # 查找所有备份文件
+        # 查找所有备份文件（支持递归查找子目录）
         backup_files = list(Path(backup_dir).glob("*_backup.json"))
+        
+        # 如果在根目录没找到，递归查找子目录
+        if not backup_files:
+            backup_files = list(Path(backup_dir).rglob("*_backup.json"))
+        
         if not backup_files:
             log(f"备份目录中没有找到备份文件: {backup_dir}", LogLevel.ERROR)
             return {}
         
         log(f"发现 {len(backup_files)} 个备份文件")
         
-        # 解析备份文件信息
-        env_backups = {}
+        # 解析备份文件信息（支持同一环境多份备份）
+        env_backups_map: Dict[str, List[Dict]] = {}  # env_name -> list of backup info
+        
         for bf in backup_files:
             try:
                 with open(bf, "r", encoding="utf-8") as f:
                     data = json.load(f)
+                
                 env_name = data.get("environment", {}).get("name", bf.stem.replace("_backup", ""))
                 pkg_count = len(data.get("environment", {}).get("packages", []))
-                env_backups[env_name] = {
+                created_at = data.get("created_at", "")
+                file_mtime = datetime.fromtimestamp(bf.stat().st_mtime).isoformat()
+                
+                backup_info = {
                     "file": str(bf),
                     "packages": pkg_count,
-                    "python_version": data.get("environment", {}).get("python_version", "unknown")
+                    "python_version": data.get("environment", {}).get("python_version", "unknown"),
+                    "created_at": created_at or file_mtime,
+                    "file_mtime": file_mtime,
+                    "version": data.get("version", "unknown"),
                 }
+                
+                if env_name not in env_backups_map:
+                    env_backups_map[env_name] = []
+                env_backups_map[env_name].append(backup_info)
+                
             except Exception as e:
                 log(f"解析备份文件失败 {bf}: {e}", LogLevel.WARNING)
         
-        if not env_backups:
+        if not env_backups_map:
             log("没有有效的备份文件", LogLevel.ERROR)
             return {}
+        
+        # 处理同一环境多份备份：按时间排序，选择最新的一份
+        env_backups = {}
+        duplicate_envs = []
+        
+        for env_name, backups in env_backups_map.items():
+            # 按创建时间倒序排序
+            backups.sort(key=lambda x: x["created_at"], reverse=True)
+            
+            if len(backups) > 1:
+                duplicate_envs.append({
+                    "name": env_name,
+                    "count": len(backups),
+                    "latest": backups[0],
+                    "all": backups
+                })
+            
+            # 默认使用最新的一份
+            env_backups[env_name] = backups[0]
+        
+        # 显示多份备份提示
+        if duplicate_envs:
+            print("\n" + "="*70)
+            print("⚠️  发现同一环境有多份备份，将使用最新的一份:")
+            print("="*70)
+            for dup in duplicate_envs:
+                print(f"\n  📁 {dup['name']} (共 {dup['count']} 份备份)")
+                print(f"     ✅ 将使用最新: {dup['latest']['created_at']} ({dup['latest']['packages']} 个包)")
+                for i, backup in enumerate(dup['all'][1:], 1):
+                    print(f"     ⏭️  跳过旧备份: {backup['created_at']} ({backup['packages']} 个包)")
+            print("="*70 + "\n")
+            
+            # 询问是否手动选择
+            if restore_mode != "auto":
+                try:
+                    choice = input("是否手动选择备份版本? [y/N]: ").strip().lower()
+                    if choice == 'y':
+                        print("\n请为每个环境选择备份版本:")
+                        for dup in duplicate_envs:
+                            print(f"\n  📁 {dup['name']}:")
+                            for i, backup in enumerate(dup['all'], 1):
+                                marker = " (最新)" if i == 1 else ""
+                                print(f"     {i}. {backup['created_at']} - {backup['packages']} 个包{marker}")
+                            
+                            while True:
+                                ver_choice = input(f"     选择版本 [1-{len(dup['all'])}] (默认1): ").strip()
+                                if not ver_choice:
+                                    ver_choice = "1"
+                                if ver_choice.isdigit() and 1 <= int(ver_choice) <= len(dup['all']):
+                                    selected_idx = int(ver_choice) - 1
+                                    env_backups[dup['name']] = dup['all'][selected_idx]
+                                    log(f"已选择 {dup['name']} 的版本: {dup['all'][selected_idx]['created_at']}")
+                                    break
+                                else:
+                                    print("     无效选择，请重试")
+                except (KeyboardInterrupt, EOFError):
+                    log("使用默认最新版本", LogLevel.WARNING)
         
         # 根据模式决定恢复哪些环境
         envs_to_restore = []
@@ -1868,7 +2720,8 @@ class RestoreManager:
                         target_env=env_name,
                         use_uv=use_uv,
                         parallel=parallel,
-                        resume=resume
+                        resume=resume,
+                        recovery_mode=recovery_mode
                     )
                     results[env_name] = report
                     log(f"✅ {env_name} 恢复完成")
@@ -2027,6 +2880,25 @@ class InteractiveMenu:
         
         target = input("目标环境名称 (默认: 原环境名): ").strip() or None
         
+        print("\n恢复模式:")
+        print("  1. 备份版本恢复 (使用备份中的版本号)")
+        print("  2. 最新版本恢复 (自动获取最新版本)")
+        recovery_choice = input("选择 [1-2] (默认1): ").strip() or "1"
+        recovery_mode = "latest" if recovery_choice == "2" else "backup"
+        
+        print("\n镜像源选择:")
+        mirror_keys = list(Config.MIRROR_SOURCES.keys())
+        for i, (key, info) in enumerate(Config.MIRROR_SOURCES.items(), 1):
+            marker = " (当前默认)" if key == Config.CURRENT_MIRROR else ""
+            print(f"  {i}. {info['name']}{marker}")
+        mirror_input = input("选择镜像源 [1-7] (直接回车使用当前默认): ").strip()
+        if mirror_input.isdigit() and 1 <= int(mirror_input) <= len(mirror_keys):
+            mirror_choice = mirror_keys[int(mirror_input) - 1]
+            if Config.set_mirror(mirror_choice):
+                log(f"已切换到: {Config.MIRROR_SOURCES[mirror_choice]['name']}", LogLevel.SUCCESS)
+        elif mirror_input:
+            log("无效的镜像源，使用当前默认", LogLevel.WARNING)
+        
         print("\n高级选项:")
         use_uv = input("使用 UV 加速? [Y/n]: ").strip().lower() != "n"
         parallel = input("启用并行安装? [y/N]: ").strip().lower() == "y"
@@ -2035,7 +2907,8 @@ class InteractiveMenu:
         with timer("恢复"):
             self.restore_mgr.restore_conda(
                 backup_file, target, use_uv=use_uv, 
-                parallel=parallel, resume=resume
+                parallel=parallel, resume=resume,
+                recovery_mode=recovery_mode
             )
     
     def _handle_batch_restore(self):
@@ -2046,8 +2919,13 @@ class InteractiveMenu:
             log(f"目录不存在: {backup_dir}", LogLevel.ERROR)
             return
         
-        # 查找备份文件
+        # 查找备份文件（支持递归查找子目录）
         backup_files = list(Path(backup_dir).glob("*_backup.json"))
+        
+        # 如果在根目录没找到，递归查找子目录
+        if not backup_files:
+            backup_files = list(Path(backup_dir).rglob("*_backup.json"))
+        
         if not backup_files:
             log(f"目录中没有备份文件: {backup_dir}", LogLevel.ERROR)
             return
@@ -2087,6 +2965,25 @@ class InteractiveMenu:
                 log(f"选择无效: {e}", LogLevel.ERROR)
                 return
         
+        print("\n恢复模式:")
+        print("  1. 备份版本恢复 (使用备份中的版本号)")
+        print("  2. 最新版本恢复 (自动获取最新版本)")
+        recovery_choice = input("选择 [1-2] (默认1): ").strip() or "1"
+        recovery_mode = "latest" if recovery_choice == "2" else "backup"
+        
+        print("\n镜像源选择:")
+        mirror_keys = list(Config.MIRROR_SOURCES.keys())
+        for i, (key, info) in enumerate(Config.MIRROR_SOURCES.items(), 1):
+            marker = " (当前默认)" if key == Config.CURRENT_MIRROR else ""
+            print(f"  {i}. {info['name']}{marker}")
+        mirror_input = input("选择镜像源 [1-7] (直接回车使用当前默认): ").strip()
+        if mirror_input.isdigit() and 1 <= int(mirror_input) <= len(mirror_keys):
+            mirror_choice = mirror_keys[int(mirror_input) - 1]
+            if Config.set_mirror(mirror_choice):
+                log(f"已切换到: {Config.MIRROR_SOURCES[mirror_choice]['name']}", LogLevel.SUCCESS)
+        elif mirror_input:
+            log("无效的镜像源，使用当前默认", LogLevel.WARNING)
+        
         print("\n高级选项:")
         use_uv = input("使用 UV 加速? [Y/n]: ").strip().lower() != "n"
         parallel = input("启用并行安装? [y/N]: ").strip().lower() == "y"
@@ -2099,7 +2996,8 @@ class InteractiveMenu:
                 selected_envs=selected_envs,
                 use_uv=use_uv,
                 parallel=parallel,
-                resume=resume
+                resume=resume,
+                recovery_mode=recovery_mode
             )
     
     def handle_clone(self):
@@ -2242,9 +3140,10 @@ class InteractiveMenu:
         print(f"  3. 保留临时文件: {'✅' if Config.KEEP_TEMP_FILES else '❌'}")
         print(f"  4. 详细日志模式: {'✅' if Config.VERBOSE else '❌'}")
         print(f"  5. 默认并行数: {Config.DEFAULT_MAX_WORKERS}")
-        print("  6. 恢复默认设置")
+        print(f"  6. 镜像源: {Config.MIRROR_SOURCES.get(Config.CURRENT_MIRROR, {}).get('name', Config.CURRENT_MIRROR)}")
+        print("  7. 恢复默认设置")
         
-        choice = input("\n选择要修改的设置 [1-6]: ").strip()
+        choice = input("\n选择要修改的设置 [1-7]: ").strip()
         
         if choice == "1":
             Config.AUTO_USE_UV = not Config.AUTO_USE_UV
@@ -2259,11 +3158,22 @@ class InteractiveMenu:
             if workers.isdigit():
                 Config.DEFAULT_MAX_WORKERS = int(workers)
         elif choice == "6":
+            print("\n可用镜像源:")
+            for key, info in Config.MIRROR_SOURCES.items():
+                marker = " (当前)" if key == Config.CURRENT_MIRROR else ""
+                print(f"  {key}: {info['name']}{marker}")
+            mirror_choice = input("\n选择镜像源 (输入key): ").strip()
+            if Config.set_mirror(mirror_choice):
+                log(f"已切换到: {Config.MIRROR_SOURCES[mirror_choice]['name']}", LogLevel.SUCCESS)
+            else:
+                log("无效的镜像源", LogLevel.ERROR)
+        elif choice == "7":
             Config.AUTO_USE_UV = True
             Config.AUTO_USE_MIRROR = True
             Config.KEEP_TEMP_FILES = False
             Config.VERBOSE = False
             Config.DEFAULT_MAX_WORKERS = 4
+            Config.CURRENT_MIRROR = "tsinghua"
             log("设置已恢复默认", LogLevel.SUCCESS)
         
         # 保存配置
@@ -2273,6 +3183,7 @@ class InteractiveMenu:
             "KEEP_TEMP_FILES": Config.KEEP_TEMP_FILES,
             "VERBOSE": Config.VERBOSE,
             "DEFAULT_MAX_WORKERS": Config.DEFAULT_MAX_WORKERS,
+            "CURRENT_MIRROR": Config.CURRENT_MIRROR,
         }
         with open(Config.CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(config_data, f, indent=2)
@@ -2362,6 +3273,15 @@ def create_parser() -> argparse.ArgumentParser:
   python conda_env_toolkit.py restore backup.json -n newenv --parallel --use-uv
   python conda_env_toolkit.py restore backup.json --max-workers 8 --no-resume
   
+  # 恢复环境 (使用最新版本)
+  python conda_env_toolkit.py restore backup.json -n newenv --recovery-mode latest
+  
+  # 恢复环境 (使用官方主站源)
+  python conda_env_toolkit.py restore backup.json -n newenv --mirror official
+  
+  # 恢复环境 (使用阿里云镜像)
+  python conda_env_toolkit.py restore backup.json -n newenv --mirror aliyun
+  
   # 克隆环境
   python conda_env_toolkit.py clone oldenv newenv
   
@@ -2375,7 +3295,7 @@ def create_parser() -> argparse.ArgumentParser:
   python conda_env_toolkit.py cleanup --all
   python conda_env_toolkit.py cleanup --conda --pip
 
-更多信息: https://github.com/conda-env-toolkit/docs
+更多信息: https://github.com/daybydaymylove2009-max/conda-env-toolkit/docs
         """
     )
     
@@ -2403,6 +3323,10 @@ def create_parser() -> argparse.ArgumentParser:
     restore_parser.add_argument("--parallel", action="store_true", help="并行安装")
     restore_parser.add_argument("--max-workers", type=int, default=4, help="并行工作数")
     restore_parser.add_argument("--no-resume", action="store_true", help="禁用断点续传")
+    restore_parser.add_argument("--recovery-mode", choices=["backup", "latest"], default="backup",
+                               help="恢复模式: backup=使用备份版本(默认), latest=使用最新版本")
+    restore_parser.add_argument("--mirror", choices=list(Config.MIRROR_SOURCES.keys()), default="tsinghua",
+                               help="镜像源: official=官方主站, tsinghua=清华(默认), aliyun=阿里云, ustc=中科大, tencent=腾讯云, huawei=华为云, douban=豆瓣")
     restore_parser.add_argument("--verbose", action="store_true", help="启用详细日志")
     
     # clone 命令
@@ -2480,13 +3404,20 @@ def main():
                 backup_mgr.backup_conda(args.env_name, args.output, formats)
         
         elif args.command == "restore":
+            # 设置镜像源
+            if hasattr(args, 'mirror') and args.mirror:
+                if Config.set_mirror(args.mirror):
+                    mirror_name = Config.MIRROR_SOURCES[args.mirror]["name"]
+                    log(f"使用镜像源: {mirror_name}")
+            
             restore_mgr.restore_conda(
                 args.backup_file,
                 target_env=args.env_name,
                 use_uv=args.use_uv,
                 parallel=args.parallel,
                 max_workers=args.max_workers,
-                resume=not args.no_resume
+                resume=not args.no_resume,
+                recovery_mode=args.recovery_mode
             )
         
         elif args.command == "clone":
