@@ -1605,36 +1605,56 @@ class CondaManager:
         
         # 然后根据 stderr 错误信息判断
         # 10. 检查是否在conda渠道中找到
-        if "not found" in stderr_lower or "could not find" in stderr_lower or "no matching" in stderr_lower or "packagesnotfounderror" in stderr_lower:
+        if "not found" in stderr_lower or "could not find" in stderr_lower or "no matching" in stderr_lower or "packagesnotfounderror" in stderr_lower or "package not found" in stderr_lower or "does not exist" in stderr_lower:
             return "包在配置的渠道中未找到"
         
         # 11. 网络问题
-        if "timeout" in stderr_lower or "connection" in stderr_lower or "network" in stderr_lower or "temporary failure" in stderr_lower:
+        if "timeout" in stderr_lower or "connection" in stderr_lower or "network" in stderr_lower or "temporary failure" in stderr_lower or "unreachable" in stderr_lower or "refused" in stderr_lower or "reset" in stderr_lower:
             return "网络连接超时或不稳定"
         
         # 12. SSL证书问题
-        if "ssl" in stderr_lower or "certificate" in stderr_lower:
+        if "ssl" in stderr_lower or "certificate" in stderr_lower or "tls" in stderr_lower or "handshake" in stderr_lower:
             return "SSL证书验证失败"
         
         # 13. 依赖冲突
-        if "conflict" in stderr_lower or "incompatible" in stderr_lower or "unsatisfiable" in stderr_lower:
+        if "conflict" in stderr_lower or "incompatible" in stderr_lower or "unsatisfiable" in stderr_lower or "cannot be installed" in stderr_lower or "broken" in stderr_lower:
             return "与现有包存在依赖冲突"
         
         # 14. 权限问题
-        if "permission" in stderr_lower or "denied" in stderr_lower or "access" in stderr_lower:
+        if "permission" in stderr_lower or "denied" in stderr_lower or "access" in stderr_lower or "forbidden" in stderr_lower or "unauthorized" in stderr_lower:
             return "权限不足，无法写入环境目录"
         
         # 15. 磁盘空间
-        if "disk" in stderr_lower or "space" in stderr_lower or "no space" in stderr_lower:
+        if "disk" in stderr_lower or "space" in stderr_lower or "no space" in stderr_lower or "insufficient space" in stderr_lower:
             return "磁盘空间不足"
         
         # 16. 内存不足
-        if "memory" in stderr_lower or "oom" in stderr_lower:
+        if "memory" in stderr_lower or "oom" in stderr_lower or "out of memory" in stderr_lower or "killed" in stderr_lower:
             return "内存不足"
         
         # 17. Python版本不兼容
-        if "python" in stderr_lower and "version" in stderr_lower:
+        if "python" in stderr_lower and ("version" in stderr_lower or "incompatible" in stderr_lower):
             return "Python版本不兼容"
+        
+        # 18. 解析错误 / 元数据问题
+        if "parse" in stderr_lower or "metadata" in stderr_lower or "corrupt" in stderr_lower or "invalid" in stderr_lower or "bad" in stderr_lower:
+            return "包元数据解析错误或文件损坏"
+        
+        # 19. 平台不支持
+        if "platform" in stderr_lower or "architecture" in stderr_lower or "os" in stderr_lower or "operating system" in stderr_lower:
+            return "当前平台或操作系统不支持此包"
+        
+        # 20. 下载失败
+        if "download" in stderr_lower or "fetch" in stderr_lower or "retrieve" in stderr_lower:
+            return "包下载失败，可能是网络或源问题"
+        
+        # 21. 解压/安装失败
+        if "extract" in stderr_lower or "unpack" in stderr_lower or "install" in stderr_lower or "write" in stderr_lower or "copy" in stderr_lower:
+            return "包解压或安装过程中失败"
+        
+        # 22. 子进程错误
+        if "subprocess" in stderr_lower or "command" in stderr_lower or "exit" in stderr_lower or "returned non-zero" in stderr_lower:
+            return "安装脚本或子进程执行失败"
         
         # 默认
         return "安装失败，具体原因请查看详细日志"
@@ -1685,7 +1705,9 @@ class CondaManager:
                     return True, ""
         
         if not success:
-            reason = self.analyze_failure_reason(package, stderr)
+            # 合并 stdout 和 stderr 进行分析，因为 conda 可能将错误输出到 stdout
+            combined_output = (stdout or "") + "\n" + (stderr or "")
+            reason = self.analyze_failure_reason(package, combined_output)
             return False, reason
         
         return True, ""
